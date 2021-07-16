@@ -1,22 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de usuário</title>
+    <script src="assets/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            $("#submitForm").click(function (childs) {
+                var name = $("#user-name").val();
+                var pass = $("#user-pass").val();
+                var permission = parseInt($("#user-permission").val());
+
+                if (name === "" || pass === "" || permission === "") {
+                    alert("Preencha todos os campos do formulário.")
+                    return
+                }
+                
+                var data = {
+                    name: name,
+                    pass: pass,
+                    permission: permission
+                }
+
+                var request = $.ajax({
+                    url: "http://localhost/api-php-basic/app/routes/users/save.php",
+                    method: "POST",
+                    data: JSON.stringify(data),
+                    dataType: "json"
+                });
+                
+                var messageArea = $("#message")
+
+                request.done(function (response) {
+                    if (response.status) {
+                        messageArea.html("Cadastro foi efetuado!")
+                    } else {
+                        messageArea.html(response.hasErros)
+                    }
+                });
+
+                request.fail(function (jqXHR, textStatus) {
+                    messageArea.html("Erro ao cadastrar: " + textStatus);
+                });
+
+            })
+
+        });
+
+        function refreshForm() {
+            $("#user-name").val("");
+            $("#user-pass").val("");
+            $("#user-permission").val("");
+        }
+    </script>
 </head>
+
 <body>
-    <header> 
-        <h1>Sistema Thrall</h1> 
+    <header>
+        <h1>Sistema Thrall</h1>
     </header>
+    <div>
+        <span id="message"></span>
+    </div>
     <section>
         <h2>Cadastro de Usuário</h2>
         <form name="cad-user">
             <label for="user-name">Usuário</label>
-            <input type="text" name="username" id="user-name">
+            <input type="text" name="name" id="user-name">
             <label for="user-password">Senha</label>
-            <input type="password" name="pass" id="user-password">
+            <input type="password" name="pass" id="user-pass">
             <label for="user-permission">Permissão</label>
             <select name="permission" id="user-permission">
                 <option value="">Selecione</option>
@@ -24,7 +79,7 @@
                 <option value="1">Comum</option>
             </select>
             <button type="reset">Limpar</button>
-            <button type="button">Enviar</button>
+            <button type="button" id="submitForm">Enviar</button>
         </form>
     </section>
     <section>
@@ -49,4 +104,5 @@
         </table>
     </section>
 </body>
+
 </html>
